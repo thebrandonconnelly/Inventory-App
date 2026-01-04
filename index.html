@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inventory Manager</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Bin Organizer</title>
     <style>
         * {
             margin: 0;
@@ -12,626 +13,648 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f3f4f6;
             padding-bottom: 80px;
         }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
         .header {
-            text-align: center;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: white;
-            padding: 20px 0;
-            margin-bottom: 20px;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 24px;
+            margin-bottom: 5px;
         }
 
-        .search-bar {
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .view-toggle-bar {
+            padding: 16px;
             background: white;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        .search-bar input {
-            width: 100%;
+        .view-toggle-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .view-toggle-btn {
+            flex: 1;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: none;
             border-radius: 8px;
             font-size: 16px;
-            outline: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .search-bar input:focus {
-            border-color: #667eea;
+        .view-toggle-btn.active {
+            background: #2563eb;
+            color: white;
         }
 
-        .filters {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        .view-toggle-btn.inactive {
+            background: #e5e7eb;
+            color: #374151;
         }
 
-        .filters select {
+        .search-input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #e5e7eb;
             border-radius: 8px;
             font-size: 16px;
-            margin-bottom: 10px;
-            outline: none;
-            background: white;
+            margin-bottom: 12px;
         }
 
-        .btn {
-            width: 100%;
-            padding: 15px;
+        .filter-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-select {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .add-button {
+            margin: 16px;
+            width: calc(100% - 32px);
+            padding: 16px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
             border: none;
             border-radius: 12px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
-        .btn:active {
+        .add-button:active {
             transform: scale(0.98);
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .form-container {
+            background: white;
+            margin: 16px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+            padding: 12px;
+            background: #f3f4f6;
+            border: 2px dashed #2563eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            left: 0;
+            top: 0;
+        }
+
+        .photo-preview-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .photo-preview {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background: #ef4444;
             color: white;
-            margin-bottom: 15px;
+            border: none;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-option.selected {
+            border-color: #000;
+            transform: scale(1.1);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
         }
 
         .btn-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-            margin-bottom: 15px;
+            background: #d1d5db;
+            color: #374151;
         }
 
-        .items-container {
-            display: grid;
-            gap: 15px;
-            margin-bottom: 20px;
+        .content-container {
+            padding: 16px;
         }
 
         .item-card {
             background: white;
             border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
-        .item-image {
-            width: 100%;
+        .item-photos {
+            display: flex;
+            overflow-x: auto;
+            gap: 4px;
+        }
+
+        .item-photos img {
             height: 200px;
+            width: 200px;
             object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            background: #f5f5f5;
+            flex-shrink: 0;
         }
 
-        .item-info {
-            margin-bottom: 8px;
+        .item-content {
+            padding: 16px;
         }
 
-        .item-description {
+        .item-title {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
-        .item-bin {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .item-platforms {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .platform-tag {
-            background: #e8f0fe;
-            color: #1967d2;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .item-keywords {
-            color: #666;
-            font-size: 14px;
-            font-style: italic;
-        }
-
-        .item-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .btn-edit, .btn-delete {
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-edit {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-delete {
-            background: #ff4444;
-            color: white;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            width: 100%;
-            max-width: 500px;
-            margin-top: 20px;
-        }
-
-        .modal-header {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .form-group textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        .photo-capture {
-            margin-bottom: 15px;
-        }
-
-        .photo-preview {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-top: 10px;
-            background: #f5f5f5;
-        }
-
-        .platform-checkboxes {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .checkbox-label {
+        .item-detail {
             display: flex;
             align-items: center;
-            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .bin-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .category-badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 4px 12px;
+            border-radius: 6px;
+            margin-left: 8px;
+        }
+
+        .keywords {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .delete-btn {
+            width: 100%;
+            padding: 10px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 12px;
             cursor: pointer;
         }
 
-        .checkbox-label input {
-            width: auto;
-            cursor: pointer;
-        }
-
-        .modal-actions {
+        .bin-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
         }
 
-        .btn-save {
-            background: #667eea;
+        .bin-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .bin-card-header {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
+            font-size: 32px;
+            font-weight: 700;
         }
 
-        .btn-cancel {
-            background: #e0e0e0;
-            color: #333;
+        .bin-card-content {
+            padding: 12px;
+        }
+
+        .bin-card-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .bin-card-info {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .bin-delete-btn {
+            width: 100%;
+            padding: 8px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            cursor: pointer;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            color: white;
+            padding: 60px 20px;
+            color: #6b7280;
         }
 
-        .empty-state h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
         }
 
-        .stats {
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: white;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 12px 16px;
+            border-top: 1px solid #e5e7eb;
             display: flex;
-            justify-content: space-around;
+            gap: 8px;
         }
 
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 24px;
-            font-weight: 700;
-            color: #667eea;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-        }
-
-        input[type="file"] {
-            padding: 8px !important;
-        }
-
-        .export-import {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .btn-export, .btn-import {
+        .footer-btn {
+            flex: 1;
             padding: 12px;
             border: none;
             border-radius: 8px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            background: white;
-            color: #667eea;
+        }
+
+        .export-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .import-btn {
+            background: #f59e0b;
+            color: white;
+            position: relative;
+        }
+
+        .import-btn input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            left: 0;
+            top: 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .back-button {
+            background: #374151;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="app">
+        <!-- Header -->
         <div class="header">
-            <h1>📦 Inventory Manager</h1>
-            <p>Track your items with ease</p>
+            <h1>Bin Organizer</h1>
+            <p id="statsText">0 items in 0 bins</p>
         </div>
 
-        <div class="stats" id="stats">
-            <div class="stat-item">
-                <div class="stat-number" id="totalItems">0</div>
-                <div class="stat-label">Total Items</div>
+        <!-- View Toggle -->
+        <div id="viewToggleBar" class="view-toggle-bar">
+            <div class="view-toggle-buttons">
+                <button class="view-toggle-btn active" data-view="items">📦 Items</button>
+                <button class="view-toggle-btn inactive" data-view="bins">🗃️ Bins</button>
             </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalBins">0</div>
-                <div class="stat-label">Bins Used</div>
+
+            <!-- Search/Filter for Items View -->
+            <div id="itemsSearchBar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search items, bins, keywords...">
+                <div class="filter-row">
+                    <select id="binFilter" class="filter-select">
+                        <option value="all">All Bins</option>
+                    </select>
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="all">All Categories</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Collectibles">Collectibles</option>
+                        <option value="Tools">Tools</option>
+                        <option value="Clothes">Clothes</option>
+                        <option value="Books">Books</option>
+                        <option value="Toys">Toys</option>
+                        <option value="Games">Games</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Kitchen">Kitchen</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="🔍 Search by keyword, description, or bin...">
-        </div>
+        <!-- Add Buttons -->
+        <button id="addItemButton" class="add-button">+ Add Item</button>
+        <button id="addBinButton" class="add-button hidden">+ Add Bin</button>
 
-        <div class="filters">
-            <select id="platformFilter">
-                <option value="">All Platforms</option>
-                <option value="Poshmark">Poshmark</option>
-                <option value="Depop">Depop</option>
-                <option value="Mercari">Mercari</option>
-                <option value="eBay">eBay</option>
-                <option value="Facebook Marketplace">Facebook Marketplace</option>
-                <option value="Not Listed">Not Listed</option>
-            </select>
-            <select id="binFilter">
-                <option value="">All Bins</option>
-            </select>
-        </div>
-
-        <button class="btn btn-primary" id="addItemBtn">+ Add New Item</button>
-
-        <div class="export-import">
-            <button class="btn-export" id="exportBtn">📤 Export Data</button>
-            <button class="btn-import" id="importBtn">📥 Import Data</button>
-        </div>
-        <input type="file" id="importFile" accept=".json" style="display: none;">
-
-        <div class="items-container" id="itemsContainer"></div>
-    </div>
-
-    <!-- Add/Edit Modal -->
-    <div class="modal" id="itemModal">
-        <div class="modal-content">
-            <div class="modal-header" id="modalTitle">Add New Item</div>
+        <!-- Add Item Form -->
+        <div id="itemFormContainer" class="form-container hidden">
+            <div class="form-title">Add New Item</div>
             <form id="itemForm">
-                <div class="photo-capture">
-                    <label>Photo</label>
-                    <input type="file" id="photoInput" accept="image/*" capture="environment">
-                    <img id="photoPreview" class="photo-preview" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Photos</label>
+                    <div class="file-input-wrapper">
+                        📸 Tap to add photos (multiple)
+                        <input type="file" id="photoInput" accept="image/*" capture="environment" multiple>
+                    </div>
+                    <div id="photoPreviewContainer" class="photo-preview-container"></div>
                 </div>
 
                 <div class="form-group">
-                    <label>Description *</label>
-                    <textarea id="description" required placeholder="e.g., Blue floral dress, size M"></textarea>
+                    <label class="form-label">Description *</label>
+                    <input type="text" id="itemDescription" class="form-input" placeholder="e.g., Pokemon card collection" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Bin Location *</label>
-                    <input type="text" id="binLocation" required placeholder="e.g., A, B1, 12">
+                    <label class="form-label">Bin Location *</label>
+                    <select id="itemBinLocation" class="form-select" required>
+                        <option value="">Select a bin</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Platforms</label>
-                    <div class="platform-checkboxes">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="platform" value="Poshmark"> Poshmark
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="platform" value="Depop"> Depop
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="platform" value="Mercari"> Mercari
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="platform" value="eBay"> eBay
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="platform" value="Facebook Marketplace"> Facebook
-                        </label>
+                    <label class="form-label">Category</label>
+                    <select id="itemCategory" class="form-select">
+                        <option value="">Select category</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Collectibles">Collectibles</option>
+                        <option value="Tools">Tools</option>
+                        <option value="Clothes">Clothes</option>
+                        <option value="Books">Books</option>
+                        <option value="Toys">Toys</option>
+                        <option value="Games">Games</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Kitchen">Kitchen</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Keywords/Tags</label>
+                    <input type="text" id="itemKeywords" class="form-input" placeholder="e.g., vintage, rare, complete set">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" id="itemQuantity" class="form-input" value="1" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea id="itemNotes" class="form-textarea" placeholder="Any additional details..."></textarea>
+                </div>
+
+                <div class="button-row">
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                    <button type="button" id="cancelItemButton" class="btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Add Bin Form -->
+        <div id="binFormContainer" class="form-container hidden">
+            <div class="form-title">Add New Bin</div>
+            <form id="binForm">
+                <div class="form-group">
+                    <label class="form-label">Bin Number/Label *</label>
+                    <input type="text" id="binNumber" class="form-input" placeholder="e.g., A1, 1, B2" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" id="binLocation" class="form-input" placeholder="e.g., Garage shelf 2, Basement">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Color Tag</label>
+                    <div class="color-picker" id="colorPicker">
+                        <div class="color-option selected" data-color="#2563eb" style="background: #2563eb;"></div>
+                        <div class="color-option" data-color="#dc2626" style="background: #dc2626;"></div>
+                        <div class="color-option" data-color="#16a34a" style="background: #16a34a;"></div>
+                        <div class="color-option" data-color="#ea580c" style="background: #ea580c;"></div>
+                        <div class="color-option" data-color="#7c3aed" style="background: #7c3aed;"></div>
+                        <div class="color-option" data-color="#db2777" style="background: #db2777;"></div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Keywords</label>
-                    <input type="text" id="keywords" placeholder="e.g., summer, vintage, floral">
+                    <label class="form-label">Notes</label>
+                    <textarea id="binNotes" class="form-textarea" placeholder="Any notes about this bin..."></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label>Price</label>
-                    <input type="text" id="price" placeholder="e.g., $25">
-                </div>
-
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea id="notes" placeholder="Any additional notes..."></textarea>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button>
-                    <button type="submit" class="btn btn-save">Save Item</button>
+                <div class="button-row">
+                    <button type="submit" class="btn btn-primary">Add Bin</button>
+                    <button type="button" id="cancelBinButton" class="btn btn-secondary">Cancel</button>
                 </div>
             </form>
+        </div>
+
+        <!-- Content Container -->
+        <div id="contentContainer" class="content-container"></div>
+
+        <!-- Bin Detail View -->
+        <div id="binDetailView" class="hidden">
+            <div class="view-toggle-bar">
+                <button class="back-button" id="backFromBinDetail">← Back to Bins</button>
+                <h2 id="binDetailTitle" style="margin-bottom: 12px; font-size: 20px;"></h2>
+                <p id="binDetailInfo" style="color: #6b7280; font-size: 14px;"></p>
+            </div>
+            <div id="binDetailContent" class="content-container"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <button id="exportButton" class="footer-btn export-btn">💾 Export</button>
+            <label class="footer-btn import-btn">
+                📥 Import
+                <input type="file" id="importInput" accept=".json">
+            </label>
         </div>
     </div>
 
     <script>
-        // Data storage
-        let inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-        let editingId = null;
-
-        // DOM elements
-        const addItemBtn = document.getElementById('addItemBtn');
-        const itemModal = document.getElementById('itemModal');
-        const itemForm = document.getElementById('itemForm');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const searchInput = document.getElementById('searchInput');
-        const platformFilter = document.getElementById('platformFilter');
-        const binFilter = document.getElementById('binFilter');
-        const itemsContainer = document.getElementById('itemsContainer');
-        const photoInput = document.getElementById('photoInput');
-        const photoPreview = document.getElementById('photoPreview');
-        const modalTitle = document.getElementById('modalTitle');
-        const exportBtn = document.getElementById('exportBtn');
-        const importBtn = document.getElementById('importBtn');
-        const importFile = document.getElementById('importFile');
-
-        // Event listeners
-        addItemBtn.addEventListener('click', () => openModal());
-        cancelBtn.addEventListener('click', closeModal);
-        itemForm.addEventListener('submit', saveItem);
-        searchInput.addEventListener('input', renderItems);
-        platformFilter.addEventListener('change', renderItems);
-        binFilter.addEventListener('change', renderItems);
-        photoInput.addEventListener('change', handlePhotoUpload);
-        exportBtn.addEventListener('click', exportData);
-        importBtn.addEventListener('click', () => importFile.click());
-        importFile.addEventListener('change', importData);
+        // State
+        let items = [];
+        let bins = [];
+        let currentView = 'items';
+        let currentPhotos = [];
+        let selectedColor = '#2563eb';
+        let selectedBinId = null;
 
         // Initialize
-        updateBinFilter();
-        renderItems();
-        updateStats();
+        loadData();
+        setupEventListeners();
+        render();
 
-        function openModal(id = null) {
-            editingId = id;
-            itemModal.classList.add('active');
-            
-            if (id) {
-                modalTitle.textContent = 'Edit Item';
-                const item = inventory.find(i => i.id === id);
-                document.getElementById('description').value = item.description;
-                document.getElementById('binLocation').value = item.binLocation;
-                document.getElementById('keywords').value = item.keywords || '';
-                document.getElementById('price').value = item.price || '';
-                document.getElementById('notes').value = item.notes || '';
-                
-                // Set platforms
-                document.querySelectorAll('input[name="platform"]').forEach(cb => {
-                    cb.checked = item.platforms.includes(cb.value);
-                });
-                
-                // Show photo if exists
-                if (item.photo) {
-                    photoPreview.src = item.photo;
-                    photoPreview.style.display = 'block';
-                }
-            } else {
-                modalTitle.textContent = 'Add New Item';
-                itemForm.reset();
-                photoPreview.style.display = 'none';
-            }
+        function loadData() {
+            const savedItems = localStorage.getItem('binOrganizerItems');
+            const savedBins = localStorage.getItem('binOrganizerBins');
+            if (savedItems) items = JSON.parse(savedItems);
+            if (savedBins) bins = JSON.parse(savedBins);
         }
 
-        function closeModal() {
-            itemModal.classList.remove('active');
-            editingId = null;
-            itemForm.reset();
-            photoPreview.style.display = 'none';
+        function saveData() {
+            localStorage.setItem('binOrganizerItems', JSON.stringify(items));
+            localStorage.setItem('binOrganizerBins', JSON.stringify(bins));
         }
 
-        function handlePhotoUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    photoPreview.src = event.target.result;
-                    photoPreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function saveItem(e) {
-            e.preventDefault();
-            
-            const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked'))
-                .map(cb => cb.value);
-            
-            const item = {
-                id: editingId || Date.now(),
-                description: document.getElementById('description').value,
-                binLocation: document.getElementById('binLocation').value.toUpperCase(),
-                platforms: platforms,
-                keywords: document.getElementById('keywords').value,
-                price: document.getElementById('price').value,
-                notes: document.getElementById('notes').value,
-                photo: photoPreview.style.display === 'block' ? photoPreview.src : null,
-                dateAdded: editingId ? inventory.find(i => i.id === editingId).dateAdded : new Date().toISOString()
-            };
-            
-            if (editingId) {
-                const index = inventory.findIndex(i => i.id === editingId);
-                inventory[index] = item;
-            } else {
-                inventory.push(item);
-            }
-            
-            localStorage.setItem('inventory', JSON.stringify(inventory));
-            closeModal();
-            updateBinFilter();
-            renderItems();
-            updateStats();
-        }
-
-        function deleteItem(id) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                inventory = inventory.filter(i => i.id !== id);
-                localStorage.setItem('inventory', JSON.stringify(inventory));
-                updateBinFilter();
-                renderItems();
-                updateStats();
-            }
-        }
-
-        function renderItems() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const platformFilterValue = platformFilter.value;
-            const binFilterValue = binFilter.value;
-            
-            let filtered = inventory.filter(item => {
-                const matchesSearch = !searchTerm || 
-                    item.description.toLowerCase().includes(searchTerm) ||
-                    item.binLocation.toLowerCase().includes(searchTerm) ||
-                    item.keywords.toLowerCase().includes(searchTerm);
-                
-                const matchesPlatform = !platformFilterValue || 
-                    (platformFilterValue === 'Not Listed' ? item.platforms.length === 0 : item.platforms.includes(platformFilterValue));
-                
-                const matchesBin = !binFilterValue || item.binLocation === binFilterValue;
-                
-                return matchesSearch && matchesPlatform && matchesBin;
-            });
-            
-            if (filtered.length === 0) {
-                itemsContainer.innerHTML = `
-                    <div class="empty-state">
-                        <h2>No items found</h2>
-                        <p>Try adjusting your search or add a new item</p>
-               
+        function setupEventListeners() {
+            // View toggle
+            document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentView = this.dataset.view;
+                    selectedBinId = null;
+                    document.querySelectorAll('.view-toggle-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.classList.add('inactive');
+                    });
+                    this.classList.add('active');
+                    this.classList.remove('inactive');
+                    rend
