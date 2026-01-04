@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inventory Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .search-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-bar input:focus {
+            border-color: #667eea;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .filters select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            outline: none;
+            background: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            margin-bottom: 15px;
+        }
+
+        .items-container {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .item-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .item-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: #f5f5f5;
+        }
+
+        .item-info {
+            margin-bottom: 8px;
+        }
+
+        .item-description {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .item-bin {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .item-platforms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .platform-tag {
+            background: #e8f0fe;
+            color: #1967d2;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .item-keywords {
+            color: #666;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .item-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #ff4444;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .photo-capture {
+            margin-bottom: 15px;
+        }
+
+        .photo-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 10px;
+            background: #f5f5f5;
+        }
+
+        .platform-checkboxes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-save {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        input[type="file"] {
+            padding: 8px !important;
+        }
+
+        .export-import {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-export, .btn-import {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Inventory Manager</h1>
+            <p>Track your items with ease</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalItems">0</div>
+                <div class="stat-label">Total Items</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalBins">0</div>
+                <div class="stat-label">Bins Used</div>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search by keyword, description, or bin...">
+        </div>
+
+        <div class="filters">
+            <select id="platformFilter">
+                <option value="">All Platforms</option>
+                <option value="Poshmark">Poshmark</option>
+                <option value="Depop">Depop</option>
+                <option value="Mercari">Mercari</option>
+                <option value="eBay">eBay</option>
+                <option value="Facebook Marketplace">Facebook Marketplace</option>
+                <option value="Not Listed">Not Listed</option>
+            </select>
+            <select id="binFilter">
+                <option value="">All Bins</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary" id="addItemBtn">+ Add New Item</button>
+
+        <div class="export-import">
+            <button class="btn-export" id="exportBtn">📤 Export Data</button>
+            <button class="btn-import" id="importBtn">📥 Import Data</button>
+        </div>
+        <input type="file" id="importFile" accept=".json" style="display: none;">
+
+        <div class="items-container" id="itemsContainer"></div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal" id="itemModal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">Add New Item</div>
+            <form id="itemForm">
+                <div class="photo-capture">
+                    <label>Photo</label>
+                    <input type="file" id="photoInput" accept="image/*" capture="environment">
+                    <img id="photoPreview" class="photo-preview" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="description" required placeholder="e.g., Blue floral dress, size M"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Bin Location *</label>
+                    <input type="text" id="binLocation" required placeholder="e.g., A, B1, 12">
+                </div>
+
+                <div class="form-group">
+                    <label>Platforms</label>
+                    <div class="platform-checkboxes">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="platform" value="Poshmark"> Poshmark
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="platform" value="Depop"> Depop
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="platform" value="Mercari"> Mercari
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="platform" value="eBay"> eBay
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="platform" value="Facebook Marketplace"> Facebook
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Keywords</label>
+                    <input type="text" id="keywords" placeholder="e.g., summer, vintage, floral">
+                </div>
+
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="text" id="price" placeholder="e.g., $25">
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes" placeholder="Any additional notes..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-save">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+        let editingId = null;
+
+        // DOM elements
+        const addItemBtn = document.getElementById('addItemBtn');
+        const itemModal = document.getElementById('itemModal');
+        const itemForm = document.getElementById('itemForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const searchInput = document.getElementById('searchInput');
+        const platformFilter = document.getElementById('platformFilter');
+        const binFilter = document.getElementById('binFilter');
+        const itemsContainer = document.getElementById('itemsContainer');
+        const photoInput = document.getElementById('photoInput');
+        const photoPreview = document.getElementById('photoPreview');
+        const modalTitle = document.getElementById('modalTitle');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const importFile = document.getElementById('importFile');
+
+        // Event listeners
+        addItemBtn.addEventListener('click', () => openModal());
+        cancelBtn.addEventListener('click', closeModal);
+        itemForm.addEventListener('submit', saveItem);
+        searchInput.addEventListener('input', renderItems);
+        platformFilter.addEventListener('change', renderItems);
+        binFilter.addEventListener('change', renderItems);
+        photoInput.addEventListener('change', handlePhotoUpload);
+        exportBtn.addEventListener('click', exportData);
+        importBtn.addEventListener('click', () => importFile.click());
+        importFile.addEventListener('change', importData);
+
+        // Initialize
+        updateBinFilter();
+        renderItems();
+        updateStats();
+
+        function openModal(id = null) {
+            editingId = id;
+            itemModal.classList.add('active');
+            
+            if (id) {
+                modalTitle.textContent = 'Edit Item';
+                const item = inventory.find(i => i.id === id);
+                document.getElementById('description').value = item.description;
+                document.getElementById('binLocation').value = item.binLocation;
+                document.getElementById('keywords').value = item.keywords || '';
+                document.getElementById('price').value = item.price || '';
+                document.getElementById('notes').value = item.notes || '';
+                
+                // Set platforms
+                document.querySelectorAll('input[name="platform"]').forEach(cb => {
+                    cb.checked = item.platforms.includes(cb.value);
+                });
+                
+                // Show photo if exists
+                if (item.photo) {
+                    photoPreview.src = item.photo;
+                    photoPreview.style.display = 'block';
+                }
+            } else {
+                modalTitle.textContent = 'Add New Item';
+                itemForm.reset();
+                photoPreview.style.display = 'none';
+            }
+        }
+
+        function closeModal() {
+            itemModal.classList.remove('active');
+            editingId = null;
+            itemForm.reset();
+            photoPreview.style.display = 'none';
+        }
+
+        function handlePhotoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    photoPreview.src = event.target.result;
+                    photoPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveItem(e) {
+            e.preventDefault();
+            
+            const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked'))
+                .map(cb => cb.value);
+            
+            const item = {
+                id: editingId || Date.now(),
+                description: document.getElementById('description').value,
+                binLocation: document.getElementById('binLocation').value.toUpperCase(),
+                platforms: platforms,
+                keywords: document.getElementById('keywords').value,
+                price: document.getElementById('price').value,
+                notes: document.getElementById('notes').value,
+                photo: photoPreview.style.display === 'block' ? photoPreview.src : null,
+                dateAdded: editingId ? inventory.find(i => i.id === editingId).dateAdded : new Date().toISOString()
+            };
+            
+            if (editingId) {
+                const index = inventory.findIndex(i => i.id === editingId);
+                inventory[index] = item;
+            } else {
+                inventory.push(item);
+            }
+            
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+            closeModal();
+            updateBinFilter();
+            renderItems();
+            updateStats();
+        }
+
+        function deleteItem(id) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                inventory = inventory.filter(i => i.id !== id);
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+                updateBinFilter();
+                renderItems();
+                updateStats();
+            }
+        }
+
+        function renderItems() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const platformFilterValue = platformFilter.value;
+            const binFilterValue = binFilter.value;
+            
+            let filtered = inventory.filter(item => {
+                const matchesSearch = !searchTerm || 
+                    item.description.toLowerCase().includes(searchTerm) ||
+                    item.binLocation.toLowerCase().includes(searchTerm) ||
+                    item.keywords.toLowerCase().includes(searchTerm);
+                
+                const matchesPlatform = !platformFilterValue || 
+                    (platformFilterValue === 'Not Listed' ? item.platforms.length === 0 : item.platforms.includes(platformFilterValue));
+                
+                const matchesBin = !binFilterValue || item.binLocation === binFilterValue;
+                
+                return matchesSearch && matchesPlatform && matchesBin;
+            });
+            
+            if (filtered.length === 0) {
+                itemsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No items found</h2>
+                        <p>Try adjusting your search or add a new item</p>
+               
