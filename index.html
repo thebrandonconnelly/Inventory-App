@@ -2,659 +2,569 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bin Organizer</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: #f3f4f6;
-            padding-bottom: 80px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding-bottom: 100px;
         }
-
+        
         .header {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            background: #2196F3;
             color: white;
             padding: 20px;
             text-align: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .view-toggle-bar {
-            padding: 16px;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .view-toggle-buttons {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .view-toggle-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .view-toggle-btn.active {
-            background: #2563eb;
-            color: white;
-        }
-
-        .view-toggle-btn.inactive {
-            background: #e5e7eb;
-            color: #374151;
-        }
-
-        .search-input {
+        
+        .header h1 { font-size: 24px; margin-bottom: 5px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        
+        .container { padding: 15px; }
+        
+        .btn {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
             border-radius: 8px;
             font-size: 16px;
-            margin-bottom: 12px;
-        }
-
-        .filter-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        .filter-select {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .add-button {
-            margin: 16px;
-            width: calc(100% - 32px);
-            padding: 16px;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .add-button:active {
-            transform: scale(0.98);
-        }
-
-        .form-container {
-            background: white;
-            margin: 16px;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .form-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
             display: block;
-            font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 14px;
         }
-
-        .form-input, .form-select, .form-textarea {
+        
+        .btn-primary { background: #2196F3; color: white; }
+        .btn-success { background: #4CAF50; color: white; }
+        .btn-danger { background: #f44336; color: white; }
+        .btn-secondary { background: #757575; color: white; }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
             font-size: 16px;
         }
-
-        .form-textarea {
-            resize: vertical;
+        
+        .form-group textarea {
             min-height: 80px;
+            resize: vertical;
         }
-
-        .file-input-wrapper {
-            position: relative;
-            width: 100%;
-            padding: 12px;
-            background: #f3f4f6;
-            border: 2px dashed #2563eb;
+        
+        .card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
             border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        .file-input-wrapper input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            left: 0;
-            top: 0;
+        
+        .card h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
         }
-
-        .photo-preview-container {
+        
+        .card p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #2196F3;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .photos {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 12px;
+            gap: 10px;
+            overflow-x: auto;
+            margin: 10px 0;
         }
-
+        
+        .photos img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        
+        .hidden { display: none !important; }
+        
         .photo-preview {
             position: relative;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .photo-preview img {
             width: 100px;
             height: 100px;
-        }
-
-        .photo-preview img {
-            width: 100%;
-            height: 100%;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 6px;
         }
-
-        .remove-photo {
+        
+        .photo-preview button {
             position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 24px;
-            height: 24px;
-            background: #ef4444;
+            top: -5px;
+            right: -5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: red;
             color: white;
             border: none;
-            border-radius: 50%;
-            font-size: 16px;
             cursor: pointer;
+            font-size: 16px;
             line-height: 1;
         }
-
-        .color-picker {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .color-option {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .color-option.selected {
-            border-color: #000;
-            transform: scale(1.1);
-        }
-
-        .button-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #d1d5db;
-            color: #374151;
-        }
-
-        .content-container {
-            padding: 16px;
-        }
-
-        .item-card {
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .item-photos {
-            display: flex;
-            overflow-x: auto;
-            gap: 4px;
-        }
-
-        .item-photos img {
-            height: 200px;
-            width: 200px;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .item-content {
-            padding: 16px;
-        }
-
-        .item-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .item-detail {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .bin-badge {
-            background: #dbeafe;
-            color: #1e40af;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-weight: 600;
-            margin-left: 8px;
-        }
-
-        .category-badge {
-            background: #e0e7ff;
-            color: #4338ca;
-            padding: 4px 12px;
-            border-radius: 6px;
-            margin-left: 8px;
-        }
-
-        .keywords {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 8px;
-        }
-
-        .delete-btn {
-            width: 100%;
-            padding: 10px;
-            background: #fef2f2;
-            color: #dc2626;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            margin-top: 12px;
-            cursor: pointer;
-        }
-
+        
         .bin-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 15px;
         }
-
+        
         .bin-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        .bin-card-header {
+        
+        .bin-header {
             height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 32px;
-            font-weight: 700;
+            font-weight: bold;
         }
-
-        .bin-card-content {
+        
+        .bin-body {
             padding: 12px;
         }
-
-        .bin-card-title {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .bin-card-info {
-            font-size: 12px;
-            color: #6b7280;
-        }
-
-        .bin-delete-btn {
-            width: 100%;
-            padding: 8px;
-            background: #fef2f2;
-            color: #dc2626;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 8px;
-            cursor: pointer;
-        }
-
-        .empty-state {
+        
+        .empty {
             text-align: center;
-            padding: 60px 20px;
-            color: #6b7280;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 12px 16px;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 8px;
-        }
-
-        .footer-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .export-btn {
-            background: #10b981;
-            color: white;
-        }
-
-        .import-btn {
-            background: #f59e0b;
-            color: white;
-            position: relative;
-        }
-
-        .import-btn input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            left: 0;
-            top: 0;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .back-button {
-            background: #374151;
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-bottom: 12px;
+            padding: 40px 20px;
+            color: #999;
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Header -->
-        <div class="header">
-            <h1>Bin Organizer</h1>
-            <p id="statsText">0 items in 0 bins</p>
-        </div>
+    <div class="header">
+        <h1>Bin Organizer</h1>
+        <p id="stats">0 items • 0 bins</p>
+    </div>
 
-        <!-- View Toggle -->
-        <div id="viewToggleBar" class="view-toggle-bar">
-            <div class="view-toggle-buttons">
-                <button class="view-toggle-btn active" data-view="items">📦 Items</button>
-                <button class="view-toggle-btn inactive" data-view="bins">🗃️ Bins</button>
+    <!-- Main View -->
+    <div id="mainView">
+        <div class="container">
+            <button class="btn btn-primary" id="showItemForm">📦 Add Item</button>
+            <button class="btn btn-success" id="showBinForm">🗃️ Add Bin</button>
+            <button class="btn btn-secondary" id="showBinList">View All Bins</button>
+        </div>
+        
+        <div class="container">
+            <input type="text" id="search" placeholder="Search items..." style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;">
+            <div id="itemsList"></div>
+        </div>
+    </div>
+
+    <!-- Add Item Form -->
+    <div id="itemFormView" class="hidden">
+        <div class="container">
+            <h2>Add New Item</h2>
+            
+            <div class="form-group">
+                <label>Photos</label>
+                <input type="file" id="photoInput" accept="image/*" multiple capture="environment">
+                <div id="photoPreviews"></div>
             </div>
-
-            <!-- Search/Filter for Items View -->
-            <div id="itemsSearchBar">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search items, bins, keywords...">
-                <div class="filter-row">
-                    <select id="binFilter" class="filter-select">
-                        <option value="all">All Bins</option>
-                    </select>
-                    <select id="categoryFilter" class="filter-select">
-                        <option value="all">All Categories</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Collectibles">Collectibles</option>
-                        <option value="Tools">Tools</option>
-                        <option value="Clothes">Clothes</option>
-                        <option value="Books">Books</option>
-                        <option value="Toys">Toys</option>
-                        <option value="Games">Games</option>
-                        <option value="Sports">Sports</option>
-                        <option value="Kitchen">Kitchen</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
+            
+            <div class="form-group">
+                <label>Description *</label>
+                <input type="text" id="itemDesc" required>
             </div>
-        </div>
-
-        <!-- Add Buttons -->
-        <button id="addItemButton" class="add-button">+ Add Item</button>
-        <button id="addBinButton" class="add-button hidden">+ Add Bin</button>
-
-        <!-- Add Item Form -->
-        <div id="itemFormContainer" class="form-container hidden">
-            <div class="form-title">Add New Item</div>
-            <form id="itemForm">
-                <div class="form-group">
-                    <label class="form-label">Photos</label>
-                    <div class="file-input-wrapper">
-                        📸 Tap to add photos (multiple)
-                        <input type="file" id="photoInput" accept="image/*" capture="environment" multiple>
-                    </div>
-                    <div id="photoPreviewContainer" class="photo-preview-container"></div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Description *</label>
-                    <input type="text" id="itemDescription" class="form-input" placeholder="e.g., Pokemon card collection" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Bin Location *</label>
-                    <select id="itemBinLocation" class="form-select" required>
-                        <option value="">Select a bin</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <select id="itemCategory" class="form-select">
-                        <option value="">Select category</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Collectibles">Collectibles</option>
-                        <option value="Tools">Tools</option>
-                        <option value="Clothes">Clothes</option>
-                        <option value="Books">Books</option>
-                        <option value="Toys">Toys</option>
-                        <option value="Games">Games</option>
-                        <option value="Sports">Sports</option>
-                        <option value="Kitchen">Kitchen</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Keywords/Tags</label>
-                    <input type="text" id="itemKeywords" class="form-input" placeholder="e.g., vintage, rare, complete set">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Quantity</label>
-                    <input type="number" id="itemQuantity" class="form-input" value="1" min="1">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Notes</label>
-                    <textarea id="itemNotes" class="form-textarea" placeholder="Any additional details..."></textarea>
-                </div>
-
-                <div class="button-row">
-                    <button type="submit" class="btn btn-primary">Add Item</button>
-                    <button type="button" id="cancelItemButton" class="btn btn-secondary">Cancel</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Add Bin Form -->
-        <div id="binFormContainer" class="form-container hidden">
-            <div class="form-title">Add New Bin</div>
-            <form id="binForm">
-                <div class="form-group">
-                    <label class="form-label">Bin Number/Label *</label>
-                    <input type="text" id="binNumber" class="form-input" placeholder="e.g., A1, 1, B2" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Location</label>
-                    <input type="text" id="binLocation" class="form-input" placeholder="e.g., Garage shelf 2, Basement">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Color Tag</label>
-                    <div class="color-picker" id="colorPicker">
-                        <div class="color-option selected" data-color="#2563eb" style="background: #2563eb;"></div>
-                        <div class="color-option" data-color="#dc2626" style="background: #dc2626;"></div>
-                        <div class="color-option" data-color="#16a34a" style="background: #16a34a;"></div>
-                        <div class="color-option" data-color="#ea580c" style="background: #ea580c;"></div>
-                        <div class="color-option" data-color="#7c3aed" style="background: #7c3aed;"></div>
-                        <div class="color-option" data-color="#db2777" style="background: #db2777;"></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Notes</label>
-                    <textarea id="binNotes" class="form-textarea" placeholder="Any notes about this bin..."></textarea>
-                </div>
-
-                <div class="button-row">
-                    <button type="submit" class="btn btn-primary">Add Bin</button>
-                    <button type="button" id="cancelBinButton" class="btn btn-secondary">Cancel</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Content Container -->
-        <div id="contentContainer" class="content-container"></div>
-
-        <!-- Bin Detail View -->
-        <div id="binDetailView" class="hidden">
-            <div class="view-toggle-bar">
-                <button class="back-button" id="backFromBinDetail">← Back to Bins</button>
-                <h2 id="binDetailTitle" style="margin-bottom: 12px; font-size: 20px;"></h2>
-                <p id="binDetailInfo" style="color: #6b7280; font-size: 14px;"></p>
+            
+            <div class="form-group">
+                <label>Bin *</label>
+                <select id="itemBin" required></select>
             </div>
-            <div id="binDetailContent" class="content-container"></div>
+            
+            <div class="form-group">
+                <label>Category</label>
+                <select id="itemCategory">
+                    <option value="">None</option>
+                    <option>Electronics</option>
+                    <option>Collectibles</option>
+                    <option>Tools</option>
+                    <option>Clothes</option>
+                    <option>Books</option>
+                    <option>Toys</option>
+                    <option>Games</option>
+                    <option>Sports</option>
+                    <option>Kitchen</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Keywords</label>
+                <input type="text" id="itemKeywords">
+            </div>
+            
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" id="itemQty" value="1" min="1">
+            </div>
+            
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="itemNotes"></textarea>
+            </div>
+            
+            <button class="btn btn-primary" id="saveItem">Save Item</button>
+            <button class="btn btn-secondary" id="cancelItem">Cancel</button>
         </div>
+    </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <button id="exportButton" class="footer-btn export-btn">💾 Export</button>
-            <label class="footer-btn import-btn">
-                📥 Import
-                <input type="file" id="importInput" accept=".json">
-            </label>
+    <!-- Add Bin Form -->
+    <div id="binFormView" class="hidden">
+        <div class="container">
+            <h2>Add New Bin</h2>
+            
+            <div class="form-group">
+                <label>Bin Number *</label>
+                <input type="text" id="binNumber" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="binLoc">
+            </div>
+            
+            <div class="form-group">
+                <label>Color</label>
+                <select id="binColor">
+                    <option value="#2196F3">Blue</option>
+                    <option value="#f44336">Red</option>
+                    <option value="#4CAF50">Green</option>
+                    <option value="#FF9800">Orange</option>
+                    <option value="#9C27B0">Purple</option>
+                    <option value="#E91E63">Pink</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-success" id="saveBin">Save Bin</button>
+            <button class="btn btn-secondary" id="cancelBin">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Bins List View -->
+    <div id="binsListView" class="hidden">
+        <div class="container">
+            <button class="btn btn-secondary" id="backFromBins">← Back</button>
+            <div id="binsList"></div>
+        </div>
+    </div>
+
+    <!-- Bin Detail View -->
+    <div id="binDetailView" class="hidden">
+        <div class="container">
+            <button class="btn btn-secondary" id="backFromDetail">← Back to Bins</button>
+            <h2 id="binDetailTitle"></h2>
+            <div id="binDetailItems"></div>
         </div>
     </div>
 
     <script>
-        // State
         let items = [];
         let bins = [];
-        let currentView = 'items';
-        let currentPhotos = [];
-        let selectedColor = '#2563eb';
-        let selectedBinId = null;
-
+        let photos = [];
+        let currentBinId = null;
+        
+        // Load data
+        function load() {
+            const i = localStorage.getItem('items');
+            const b = localStorage.getItem('bins');
+            if (i) items = JSON.parse(i);
+            if (b) bins = JSON.parse(b);
+        }
+        
+        // Save data
+        function save() {
+            localStorage.setItem('items', JSON.stringify(items));
+            localStorage.setItem('bins', JSON.stringify(bins));
+        }
+        
+        // Show/hide views
+        function showView(view) {
+            document.getElementById('mainView').className = 'hidden';
+            document.getElementById('itemFormView').className = 'hidden';
+            document.getElementById('binFormView').className = 'hidden';
+            document.getElementById('binsListView').className = 'hidden';
+            document.getElementById('binDetailView').className = 'hidden';
+            document.getElementById(view).className = '';
+        }
+        
+        // Update stats
+        function updateStats() {
+            document.getElementById('stats').textContent = items.length + ' items • ' + bins.length + ' bins';
+        }
+        
+        // Render items
+        function renderItems() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const filtered = items.filter(i => 
+                i.desc.toLowerCase().includes(search) ||
+                i.bin.toLowerCase().includes(search) ||
+                (i.keywords || '').toLowerCase().includes(search)
+            );
+            
+            const html = filtered.length === 0 
+                ? '<div class="empty">No items found</div>'
+                : filtered.map(i => `
+                    <div class="card">
+                        ${i.photos && i.photos.length > 0 ? `
+                            <div class="photos">
+                                ${i.photos.map(p => '<img src="' + p + '">').join('')}
+                            </div>
+                        ` : ''}
+                        <h3>${i.desc}</h3>
+                        <p>📦 Bin: <span class="badge">${i.bin}</span></p>
+                        ${i.category ? '<p>📁 ' + i.category + '</p>' : ''}
+                        ${i.qty > 1 ? '<p>🔢 Qty: ' + i.qty + '</p>' : ''}
+                        ${i.keywords ? '<p>🏷️ ' + i.keywords + '</p>' : ''}
+                        ${i.notes ? '<p>' + i.notes + '</p>' : ''}
+                        <button class="btn btn-danger" onclick="delItem(' + i.id + ')">Delete</button>
+                    </div>
+                `).join('');
+            
+            document.getElementById('itemsList').innerHTML = html;
+            updateStats();
+        }
+        
+        // Render bins
+        function renderBins() {
+            const html = bins.length === 0
+                ? '<div class="empty">No bins yet</div>'
+                : '<div class="bin-grid">' + bins.map(b => {
+                    const count = items.filter(i => i.bin === b.num).length;
+                    return `
+                        <div class="bin-card" onclick="viewBin(${b.id})">
+                            <div class="bin-header" style="background: ${b.color}">${b.num}</div>
+                            <div class="bin-body">
+                                <strong>${count} items</strong>
+                                ${b.loc ? '<p>' + b.loc + '</p>' : ''}
+                                <button class="btn btn-danger" onclick="event.stopPropagation(); delBin(${b.id})">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('') + '</div>';
+            
+            document.getElementById('binsList').innerHTML = html;
+        }
+        
+        // Update bin select
+        function updateBinSelect() {
+            const sel = document.getElementById('itemBin');
+            sel.innerHTML = '<option value="">Select bin</option>' + 
+                bins.map(b => '<option>' + b.num + '</option>').join('');
+        }
+        
+        // Handle photo upload
+        document.getElementById('photoInput').addEventListener('change', function(e) {
+            Array.from(e.target.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photos.push(e.target.result);
+                    renderPhotoPreviews();
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        function renderPhotoPreviews() {
+            const html = photos.map((p, i) => `
+                <div class="photo-preview">
+                    <img src="${p}">
+                    <button onclick="removePhoto(${i})">×</button>
+                </div>
+            `).join('');
+            document.getElementById('photoPreviews').innerHTML = html;
+        }
+        
+        function removePhoto(idx) {
+            photos.splice(idx, 1);
+            renderPhotoPreviews();
+        }
+        
+        // Button handlers
+        document.getElementById('showItemForm').addEventListener('click', function() {
+            updateBinSelect();
+            showView('itemFormView');
+        });
+        
+        document.getElementById('showBinForm').addEventListener('click', function() {
+            showView('binFormView');
+        });
+        
+        document.getElementById('showBinList').addEventListener('click', function() {
+            renderBins();
+            showView('binsListView');
+        });
+        
+        document.getElementById('saveItem').addEventListener('click', function() {
+            const desc = document.getElementById('itemDesc').value;
+            const bin = document.getElementById('itemBin').value;
+            
+            if (!desc || !bin) {
+                alert('Please fill required fields');
+                return;
+            }
+            
+            items.push({
+                id: Date.now(),
+                desc: desc,
+                bin: bin,
+                category: document.getElementById('itemCategory').value,
+                keywords: document.getElementById('itemKeywords').value,
+                qty: parseInt(document.getElementById('itemQty').value),
+                notes: document.getElementById('itemNotes').value,
+                photos: [...photos]
+            });
+            
+            save();
+            photos = [];
+            document.getElementById('itemDesc').value = '';
+            document.getElementById('itemKeywords').value = '';
+            document.getElementById('itemNotes').value = '';
+            document.getElementById('itemQty').value = '1';
+            document.getElementById('photoInput').value = '';
+            renderPhotoPreviews();
+            showView('mainView');
+            renderItems();
+        });
+        
+        document.getElementById('saveBin').addEventListener('click', function() {
+            const num = document.getElementById('binNumber').value;
+            
+            if (!num) {
+                alert('Please enter bin number');
+                return;
+            }
+            
+            bins.push({
+                id: Date.now(),
+                num: num,
+                loc: document.getElementById('binLoc').value,
+                color: document.getElementById('binColor').value
+            });
+            
+            save();
+            document.getElementById('binNumber').value = '';
+            document.getElementById('binLoc').value = '';
+            showView('mainView');
+            renderItems();
+        });
+        
+        document.getElementById('cancelItem').addEventListener('click', function() {
+            photos = [];
+            renderPhotoPreviews();
+            showView('mainView');
+        });
+        
+        document.getElementById('cancelBin').addEventListener('click', function() {
+            showView('mainView');
+        });
+        
+        document.getElementById('backFromBins').addEventListener('click', function() {
+            showView('mainView');
+        });
+        
+        document.getElementById('backFromDetail').addEventListener('click', function() {
+            renderBins();
+            showView('binsListView');
+        });
+        
+        document.getElementById('search').addEventListener('input', renderItems);
+        
+        // Delete functions
+        function delItem(id) {
+            if (confirm('Delete this item?')) {
+                items = items.filter(i => i.id !== id);
+                save();
+                renderItems();
+                if (currentBinId) viewBin(currentBinId);
+            }
+        }
+        
+        function delBin(id) {
+            if (confirm('Delete this bin?')) {
+                bins = bins.filter(b => b.id !== id);
+                save();
+                renderBins();
+            }
+        }
+        
+        function viewBin(id) {
+            currentBinId = id;
+            const bin = bins.find(b => b.id === id);
+            const binItems = items.filter(i => i.bin === bin.num);
+            
+            document.getElementById('binDetailTitle').textContent = 'Bin ' + bin.num;
+            
+            const html = binItems.length === 0
+                ? '<div class="empty">No items in this bin</div>'
+                : binItems.map(i => `
+                    <div class="card">
+                        ${i.photos && i.photos.length > 0 ? `
+                            <div class="photos">
+                                ${i.photos.map(p => '<img src="' + p + '">').join('')}
+                            </div>
+                        ` : ''}
+                        <h3>${i.desc}</h3>
+                        ${i.category ? '<p>📁 ' + i.category + '</p>' : ''}
+                        ${i.qty > 1 ? '<p>🔢 Qty: ' + i.qty + '</p>' : ''}
+                        ${i.keywords ? '<p>🏷️ ' + i.keywords + '</p>' : ''}
+                        ${i.notes ? '<p>' + i.notes + '</p>' : ''}
+                        <button class="btn btn-danger" onclick="delItem(' + i.id + ')">Delete</button>
+                    </div>
+                `).join('');
+            
+            document.getElementById('binDetailItems').innerHTML = html;
+            showView('binDetailView');
+        }
+        
         // Initialize
-        loadData();
-        setupEventListeners();
-        render();
-
-        function loadData() {
-            const savedItems = localStorage.getItem('binOrganizerItems');
-            const savedBins = localStorage.getItem('binOrganizerBins');
-            if (savedItems) items = JSON.parse(savedItems);
-            if (savedBins) bins = JSON.parse(savedBins);
-        }
-
-        function saveData() {
-            localStorage.setItem('binOrganizerItems', JSON.stringify(items));
-            localStorage.setItem('binOrganizerBins', JSON.stringify(bins));
-        }
-
-        function setupEventListeners() {
-            // View toggle
-            document.querySelectorAll('.view-toggle-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    currentView = this.dataset.view;
-                    selectedBinId = null;
-                    document.querySelectorAll('.view-toggle-btn').forEach(b => {
-                        b.classList.remove('active');
-                        b.classList.add('inactive');
-                    });
-                    this.classList.add('active');
-                    this.classList.remove('inactive');
-                    rend
+        load();
+        renderItems();
+    </script>
+</body>
+</html>
