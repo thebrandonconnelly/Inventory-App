@@ -44,6 +44,18 @@
         .btn-success { background: #4CAF50; color: white; }
         .btn-danger { background: #f44336; color: white; }
         .btn-secondary { background: #757575; color: white; }
+        .btn-warning { background: #FF9800; color: white; }
+        
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .btn-row .btn {
+            flex: 1;
+            margin: 0;
+        }
         
         .form-group {
             margin-bottom: 15px;
@@ -153,6 +165,7 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
         }
         
         .bin-header {
@@ -174,6 +187,21 @@
             padding: 40px 20px;
             color: #999;
         }
+
+        .file-label {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            background: #FF9800;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -185,21 +213,21 @@
     <!-- Main View -->
     <div id="mainView">
         <div class="container">
-            <button class="btn btn-primary" id="showItemForm">📦 Add Item</button>
-            <button class="btn btn-success" id="showBinForm">🗃️ Add Bin</button>
-            <button class="btn btn-secondary" id="showBinList">View All Bins</button>
+            <button class="btn btn-primary" onclick="showItemFormFunc()">📦 Add Item</button>
+            <button class="btn btn-success" onclick="showBinFormFunc()">🗃️ Add Bin</button>
+            <button class="btn btn-secondary" onclick="showBinListFunc()">View All Bins</button>
             
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="btn btn-success" id="exportBtn" style="flex: 1;">💾 Export Data</button>
-                <label class="btn btn-success" style="flex: 1; text-align: center;">
-                    📥 Import Data
+            <div class="btn-row">
+                <button class="btn btn-success" onclick="exportDataFunc()">💾 Export</button>
+                <label class="file-label">
+                    📥 Import
                     <input type="file" id="importInput" accept=".json" style="display: none;">
                 </label>
             </div>
         </div>
         
         <div class="container">
-            <input type="text" id="search" placeholder="Search items..." style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;">
+            <input type="text" id="search" placeholder="Search items..." onkeyup="renderItems()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;">
             <div id="itemsList"></div>
         </div>
     </div>
@@ -257,8 +285,8 @@
                 <textarea id="itemNotes"></textarea>
             </div>
             
-            <button class="btn btn-primary" id="saveItem">Save Item</button>
-            <button class="btn btn-secondary" id="cancelItem">Cancel</button>
+            <button class="btn btn-primary" onclick="saveItemFunc()">Save Item</button>
+            <button class="btn btn-secondary" onclick="cancelItemFunc()">Cancel</button>
         </div>
     </div>
 
@@ -289,15 +317,15 @@
                 </select>
             </div>
             
-            <button class="btn btn-success" id="saveBin">Save Bin</button>
-            <button class="btn btn-secondary" id="cancelBin">Cancel</button>
+            <button class="btn btn-success" onclick="saveBinFunc()">Save Bin</button>
+            <button class="btn btn-secondary" onclick="cancelBinFunc()">Cancel</button>
         </div>
     </div>
 
     <!-- Bins List View -->
     <div id="binsListView" class="hidden">
         <div class="container">
-            <button class="btn btn-secondary" id="backFromBins">← Back</button>
+            <button class="btn btn-secondary" onclick="backFromBinsFunc()">← Back</button>
             <div id="binsList"></div>
         </div>
     </div>
@@ -305,7 +333,7 @@
     <!-- Bin Detail View -->
     <div id="binDetailView" class="hidden">
         <div class="container">
-            <button class="btn btn-secondary" id="backFromDetail">← Back to Bins</button>
+            <button class="btn btn-secondary" onclick="backFromDetailFunc()">← Back to Bins</button>
             <h2 id="binDetailTitle"></h2>
             <div id="binDetailItems"></div>
         </div>
@@ -433,22 +461,42 @@
             renderPhotoPreviews();
         }
         
-        // Button handlers
-        document.getElementById('showItemForm').addEventListener('click', function() {
+        // Navigation functions
+        function showItemFormFunc() {
             updateBinSelect();
             showView('itemFormView');
-        });
+        }
         
-        document.getElementById('showBinForm').addEventListener('click', function() {
+        function showBinFormFunc() {
             showView('binFormView');
-        });
+        }
         
-        document.getElementById('showBinList').addEventListener('click', function() {
+        function showBinListFunc() {
             renderBins();
             showView('binsListView');
-        });
+        }
         
-        document.getElementById('saveItem').addEventListener('click', function() {
+        function cancelItemFunc() {
+            photos = [];
+            renderPhotoPreviews();
+            showView('mainView');
+        }
+        
+        function cancelBinFunc() {
+            showView('mainView');
+        }
+        
+        function backFromBinsFunc() {
+            showView('mainView');
+        }
+        
+        function backFromDetailFunc() {
+            renderBins();
+            showView('binsListView');
+        }
+        
+        // Save functions
+        function saveItemFunc() {
             const desc = document.getElementById('itemDesc').value;
             const bin = document.getElementById('itemBin').value;
             
@@ -478,9 +526,9 @@
             renderPhotoPreviews();
             showView('mainView');
             renderItems();
-        });
+        }
         
-        document.getElementById('saveBin').addEventListener('click', function() {
+        function saveBinFunc() {
             const num = document.getElementById('binNumber').value;
             
             if (!num) {
@@ -500,68 +548,7 @@
             document.getElementById('binLoc').value = '';
             showView('mainView');
             renderItems();
-        });
-        
-        document.getElementById('cancelItem').addEventListener('click', function() {
-            photos = [];
-            renderPhotoPreviews();
-            showView('mainView');
-        });
-        
-        document.getElementById('cancelBin').addEventListener('click', function() {
-            showView('mainView');
-        });
-        
-        document.getElementById('backFromBins').addEventListener('click', function() {
-            showView('mainView');
-        });
-        
-        document.getElementById('backFromDetail').addEventListener('click', function() {
-            renderBins();
-            showView('binsListView');
-        });
-        
-        document.getElementById('search').addEventListener('input', renderItems);
-        
-        // Export data
-        document.getElementById('exportBtn').addEventListener('click', function() {
-            const data = {
-                items: items,
-                bins: bins,
-                exportDate: new Date().toISOString()
-            };
-            const dataStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'bin-organizer-' + new Date().toISOString().split('T')[0] + '.json';
-            link.click();
-            URL.revokeObjectURL(url);
-        });
-        
-        // Import data
-        document.getElementById('importInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        if (data.items) items = data.items;
-                        if (data.bins) bins = data.bins;
-                        save();
-                        renderItems();
-                        alert('Data imported successfully!');
-                    } catch (error) {
-                        alert('Error importing data. Please check the file.');
-                    }
-                };
-                reader.readAsText(file);
-            }
-            // Reset input so same file can be imported again
-            e.target.value = '';
-        });
+        }
         
         // Delete functions
         function delItem(id) {
@@ -578,4 +565,38 @@
                 bins = bins.filter(b => b.id !== id);
                 save();
                 renderBins();
-                
+            }
+        }
+        
+        // View bin detail
+        function viewBin(id) {
+            currentBinId = id;
+            const bin = bins.find(b => b.id === id);
+            const binItems = items.filter(i => i.bin === bin.num);
+            
+            document.getElementById('binDetailTitle').textContent = 'Bin ' + bin.num;
+            
+            const html = binItems.length === 0
+                ? '<div class="empty">No items in this bin</div>'
+                : binItems.map(i => `
+                    <div class="card">
+                        ${i.photos && i.photos.length > 0 ? `
+                            <div class="photos">
+                                ${i.photos.map(p => '<img src="' + p + '">').join('')}
+                            </div>
+                        ` : ''}
+                        <h3>${i.desc}</h3>
+                        ${i.category ? '<p>📁 ' + i.category + '</p>' : ''}
+                        ${i.qty > 1 ? '<p>🔢 Qty: ' + i.qty + '</p>' : ''}
+                        ${i.keywords ? '<p>🏷️ ' + i.keywords + '</p>' : ''}
+                        ${i.notes ? '<p>' + i.notes + '</p>' : ''}
+                        <button class="btn btn-danger" onclick="delItem(' + i.id + ')">Delete</button>
+                    </div>
+                `).join('');
+            
+            document.getElementById('binDetailItems').innerHTML = html;
+            showView('binDetailView');
+        }
+        
+        // Export data
+   
