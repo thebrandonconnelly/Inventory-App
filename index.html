@@ -188,6 +188,14 @@
             <button class="btn btn-primary" id="showItemForm">📦 Add Item</button>
             <button class="btn btn-success" id="showBinForm">🗃️ Add Bin</button>
             <button class="btn btn-secondary" id="showBinList">View All Bins</button>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn btn-success" id="exportBtn" style="flex: 1;">💾 Export Data</button>
+                <label class="btn btn-success" style="flex: 1; text-align: center;">
+                    📥 Import Data
+                    <input type="file" id="importInput" accept=".json" style="display: none;">
+                </label>
+            </div>
         </div>
         
         <div class="container">
@@ -515,6 +523,46 @@
         
         document.getElementById('search').addEventListener('input', renderItems);
         
+        // Export data
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const data = {
+                items: items,
+                bins: bins,
+                exportDate: new Date().toISOString()
+            };
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'bin-organizer-' + new Date().toISOString().split('T')[0] + '.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        });
+        
+        // Import data
+        document.getElementById('importInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.items) items = data.items;
+                        if (data.bins) bins = data.bins;
+                        save();
+                        renderItems();
+                        alert('Data imported successfully!');
+                    } catch (error) {
+                        alert('Error importing data. Please check the file.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+            // Reset input so same file can be imported again
+            e.target.value = '';
+        });
+        
         // Delete functions
         function delItem(id) {
             if (confirm('Delete this item?')) {
@@ -530,41 +578,4 @@
                 bins = bins.filter(b => b.id !== id);
                 save();
                 renderBins();
-            }
-        }
-        
-        function viewBin(id) {
-            currentBinId = id;
-            const bin = bins.find(b => b.id === id);
-            const binItems = items.filter(i => i.bin === bin.num);
-            
-            document.getElementById('binDetailTitle').textContent = 'Bin ' + bin.num;
-            
-            const html = binItems.length === 0
-                ? '<div class="empty">No items in this bin</div>'
-                : binItems.map(i => `
-                    <div class="card">
-                        ${i.photos && i.photos.length > 0 ? `
-                            <div class="photos">
-                                ${i.photos.map(p => '<img src="' + p + '">').join('')}
-                            </div>
-                        ` : ''}
-                        <h3>${i.desc}</h3>
-                        ${i.category ? '<p>📁 ' + i.category + '</p>' : ''}
-                        ${i.qty > 1 ? '<p>🔢 Qty: ' + i.qty + '</p>' : ''}
-                        ${i.keywords ? '<p>🏷️ ' + i.keywords + '</p>' : ''}
-                        ${i.notes ? '<p>' + i.notes + '</p>' : ''}
-                        <button class="btn btn-danger" onclick="delItem(' + i.id + ')">Delete</button>
-                    </div>
-                `).join('');
-            
-            document.getElementById('binDetailItems').innerHTML = html;
-            showView('binDetailView');
-        }
-        
-        // Initialize
-        load();
-        renderItems();
-    </script>
-</body>
-</html>
+                
